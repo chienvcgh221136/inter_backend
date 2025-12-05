@@ -1,4 +1,3 @@
-// models/Url.js
 const mongoose = require('mongoose');
 
 const urlSchema = new mongoose.Schema({
@@ -18,6 +17,11 @@ const urlSchema = new mongoose.Schema({
   clicks: {
     type: Number,
     default: 0
+  },
+  owner: {                       // ⬅⬅ THÊM MỚI
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 });
 

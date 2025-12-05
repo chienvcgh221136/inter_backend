@@ -13,9 +13,16 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
-const urlRoutes = require('./routes/UrlRoutes');
+const urlRoutes = require('./routes/urlRoutes');
 const { redirectUrl } = require('./controllers/UrlController');
 app.use('/api/url', urlRoutes);
+
+const adminRoutes = require('./routes/AdminRoutes');
+app.use('/api/admin', adminRoutes);
+
+const userRoutes = require('./routes/UserRoutes');
+app.use('/api/user', userRoutes);
+
 
 // Redirect handler
 app.get('/:code', redirectUrl);
