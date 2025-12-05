@@ -49,8 +49,13 @@ exports.login = async (req, res) => {
 
 // ADMIN ONLY — GET ALL USERS
 exports.getAllUsers = async (req, res) => {
-  const users = await User.find().select('-password');
-  res.json(users);
+   try {
+    const users = await User.find().select('-password').populate('urls');
+    res.json(users);
+  } catch (err) {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 };
 
 // ADMIN OR SELF — GET USER BY ID
@@ -76,4 +81,12 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   await User.findByIdAndDelete(req.params.id);
   res.json({ success: true, message: 'User deleted' });
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    await user.remove(); // This will trigger the pre-remove hook in User model
+    res.json({ success: true, message: 'User and their links deleted' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 };
