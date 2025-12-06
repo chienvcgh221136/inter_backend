@@ -6,9 +6,11 @@ const { verifyToken, verifyAdmin, verifySelfOrAdmin } = require('../middleware/a
 // public routes (register/login) - nếu đã có ở controller, giữ nguyên
 router.post('/register', userController.register);
 router.post('/login', userController.login);
+router.post('/refresh-token', userController.refreshToken);
 router.post('/google-login', userController.googleLogin); // New route for Google login
 
 // protected routes
+router.get('/me', verifyToken, userController.getProfile); // Get current user profile
 router.get('/', verifyToken, verifyAdmin, userController.getAllUsers); // admin only
 router.get('/:id', verifyToken, verifySelfOrAdmin, userController.getUserById); // self or admin
 router.put('/:id', verifyToken, verifySelfOrAdmin, userController.updateUser); // self or admin

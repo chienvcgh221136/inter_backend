@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const urlController = require('../controllers/UrlController');
+const urlController = require('../controllers/urlController');
 const { verifyToken } = require('../middleware/auth');
 
 // protected user routes

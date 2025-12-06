@@ -37,13 +37,20 @@ exports.login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ error: 'Wrong password' });
 
-    const token = jwt.sign(
-      { id: user._id, username: user.username, role: 'user' },
+    const payload = { id: user._id, username: user.username, role: 'user' };
+
+    const accessToken = jwt.sign(
+      payload,
       process.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '1d' } // Access token có thời hạn 1 ngày
+    );
+    const refreshToken = jwt.sign(
+      { id: user._id, username: user.username, role: 'user' },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '7d' } // Refresh token có thời hạn 7 ngày
     );
 
-    res.json({ success: true, token, username: user.username });
+    res.json({ success: true, accessToken, refreshToken, user: payload });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -77,16 +84,51 @@ exports.googleLogin = async (req, res) => {
     }
 
     // Create JWT for our application
-    const appToken = jwt.sign(
+    const payload = { id: user._id, username: user.username, role: 'user' };
+    const accessToken = jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+    const refreshToken = jwt.sign(
       { id: user._id, username: user.username, role: 'user' },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ success: true, accessToken, refreshToken, user: payload });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid Google token' });
+  }
+};
+
+// REFRESH TOKEN
+exports.refreshToken = async (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const payload = { id: decoded.id, username: decoded.username, role: decoded.role };
+
+    const accessToken = jwt.sign(
+      payload,
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    res.json({ success: true, token: appToken, username: user.username });
+    res.json({ success: true, accessToken });
   } catch (err) {
-    res.status(401).json({ error: 'Invalid Google token' });
+    return res.status(403).json({ error: 'Invalid refresh token' });
   }
+};
+
+// GET CURRENT USER PROFILE
+exports.getProfile = async (req, res) => {
+  // req.user is populated by the verifyToken middleware
+  const user = await User.findById(req.user.id).select('-password');
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  res.json(user);
 };
 
 // ADMIN ONLY — GET ALL USERS

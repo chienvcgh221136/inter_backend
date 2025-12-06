@@ -36,13 +36,20 @@ exports.loginAdmin = async (req, res) => {
     const match = await bcrypt.compare(password, admin.password);
     if (!match) return res.status(400).json({ error: 'Wrong password' });
 
-    const token = jwt.sign(
-      { id: admin._id, username: admin.username, role: 'admin' },
+    const payload = { id: admin._id, username: admin.username, role: 'admin' };
+
+    const accessToken = jwt.sign(
+      payload,
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
+    const refreshToken = jwt.sign(
+      { id: admin._id, username: admin.username, role: 'admin' },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
 
-    res.json({ success: true, token, role: admin.role, username: admin.username });
+    res.json({ success: true, accessToken, refreshToken, user: payload });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
