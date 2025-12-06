@@ -7,7 +7,10 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:8080', // For local development
-  'https://interfrontend.vercel.app/' // <-- THAY BẰNG URL FRONTEND CỦA BẠN
+  'https://interfrontend.vercel.app', 
+  'https://interfrontend-git-main-chienvcgh221136s-projects.vercel.app/',
+  'https://interfrontend-iegb1z76n-chienvcgh221136s-projects.vercel.app/'
+  
 ];
 
 app.use(cors({
