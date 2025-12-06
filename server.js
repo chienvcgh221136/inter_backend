@@ -5,8 +5,19 @@ require('dotenv').config();
 
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:8080', // For local development
+  'https://interfrontend.vercel.app/' // <-- THAY BẰNG URL FRONTEND CỦA BẠN
+];
+
 app.use(cors({
-  origin: 'http://localhost:8080', // <-- Sửa lại cho đúng URL của frontend
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // Cho phép gửi cookie
 }));
 app.use(express.json());
