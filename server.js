@@ -8,9 +8,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:8080', // For local development
   'https://interfrontend.vercel.app', 
-  'https://interfrontend-git-main-chienvcgh221136s-projects.vercel.app/',
-  'https://interfrontend-iegb1z76n-chienvcgh221136s-projects.vercel.app/'
-  
+  'https://interfrontend-git-main-chienvcgh221136s-projects.vercel.app',
+  'https://interfrontend-iegb1z76n-chienvcgh221136s-projects.vercel.app'
 ];
 
 app.use(cors({
@@ -24,6 +23,16 @@ app.use(cors({
   credentials: true, // Cho phép gửi cookie
 }));
 app.use(express.json());
+
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error('FATAL ERROR: MONGO_URI is not defined in .env file.');
+  process.exit(1); // Thoát ứng dụng nếu không có MONGO_URI
+}
+
+mongoose.connect(mongoUri)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
 const urlRoutes = require('./routes/urlRoutes');
@@ -41,20 +50,4 @@ app.use('/api/user', userRoutes);
 app.get('/:code', redirectUrl);
 
 const PORT = process.env.PORT || 5000;
-
-const startServer = async () => {
-  try {
-    const mongoUri = process.env.MONGO_URI;
-    if (!mongoUri) {
-      throw new Error('FATAL ERROR: MONGO_URI is not defined in .env file.');
-    }
-    await mongoose.connect(mongoUri);
-    console.log('MongoDB connected');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
-
-startServer();
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
