@@ -17,7 +17,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes
 const urlRoutes = require('./routes/urlRoutes');
-const { redirectUrl } = require('./controllers/UrlController');
+const { redirectUrl } = require('./controllers/urlController');
 app.use('/api/url', urlRoutes);
 
 const adminRoutes = require('./routes/AdminRoutes');

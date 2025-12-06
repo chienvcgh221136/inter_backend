@@ -9,5 +9,6 @@ router.post('/shorten', verifyToken, urlController.shortenUrl);
 router.post('/custom', verifyToken, urlController.createCustomUrl);
 router.get('/', verifyToken, urlController.getAllUrls);
 router.delete('/:id', verifyToken, urlController.deleteUrl);
+router.put('/:id', verifyToken, urlController.updateUrl);
 
 module.exports = router;

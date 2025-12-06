@@ -74,6 +74,40 @@ exports.redirectUrl = async (req, res) => {
   }
 };
 
+exports.updateUrl = async (req, res) => {
+  try {
+    const { originalUrl, shortCode } = req.body;
+    const url = await Url.findById(req.params.id);
+
+    if (!url) {
+      return res.status(404).json({ error: 'URL not found' });
+    }
+
+    // Authorization: only owner or admin can update
+    if (req.user.role !== 'admin' && url.owner.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Forbidden: You are not allowed to edit this URL' });
+    }
+
+    if (shortCode && shortCode !== url.shortCode) {
+      const existing = await Url.findOne({ shortCode });
+      if (existing) {
+        return res.status(400).json({ error: 'Custom code already in use' });
+      }
+      url.shortCode = shortCode;
+    }
+
+    if (originalUrl) {
+      url.originalUrl = originalUrl;
+    }
+
+    const updatedUrl = await url.save();
+    res.json({ success: true, url: updatedUrl });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 exports.deleteUrl = async (req, res) => {
   try {
     const url = await Url.findById(req.params.id);
