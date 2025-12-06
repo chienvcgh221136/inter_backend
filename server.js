@@ -22,7 +22,13 @@ app.use(cors({
 }));
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error('FATAL ERROR: MONGO_URI is not defined in .env file.');
+  process.exit(1); // Thoát ứng dụng nếu không có MONGO_URI
+}
+
+mongoose.connect(mongoUri)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
