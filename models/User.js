@@ -8,7 +8,12 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: function() { return !this.googleId; } // Only required if not a Google user
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows multiple documents to have a null value for this field
   },
   createdAt: {
     type: Date,

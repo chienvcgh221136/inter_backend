@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // REGISTER USER
 exports.register = async (req, res) => {
@@ -44,6 +46,46 @@ exports.login = async (req, res) => {
     res.json({ success: true, token, username: user.username });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// GOOGLE LOGIN
+exports.googleLogin = async (req, res) => {
+  const { token } = req.body;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { name, email, sub: googleId } = ticket.getPayload();
+
+    let user = await User.findOne({ googleId });
+
+    if (!user) {
+      // If user doesn't exist, check if an account with that email already exists
+      const existingUser = await User.findOne({ username: email });
+      if (existingUser) {
+        return res.status(400).json({ error: 'An account with this email already exists. Please log in with your password.' });
+      }
+
+      // Create a new user
+      user = new User({
+        username: email, // Use email as username
+        googleId: googleId,
+      });
+      await user.save();
+    }
+
+    // Create JWT for our application
+    const appToken = jwt.sign(
+      { id: user._id, username: user.username, role: 'user' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.json({ success: true, token: appToken, username: user.username });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid Google token' });
   }
 };
 
