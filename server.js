@@ -10,7 +10,7 @@ const allowedOrigins = [
   'http://localhost:5000',
   'https://interfrontend.vercel.app',
   'https://interfrontend-git-main-chienvcgh221136s-projects.vercel.app',
-  'https://interfrontend-iegb1z76n-chienvcgh221136s-projects.vercel.app'
+  'https://interfrontend-jaidvu3cg-chienvcgh221136s-projects.vercel.app'
 ];
 
 app.use(cors({
