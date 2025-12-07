@@ -37,7 +37,11 @@ mongoose.connect(mongoUri)
 
 // Routes
 const urlRoutes = require('./routes/urlRoutes');
-const { redirectUrl } = require('./controllers/urlController');
+const { redirectUrl, shortenUrlPublic } = require('./controllers/urlController');
+
+// Public shorten route (does not require token)
+app.post('/api/url/shorten-public', shortenUrlPublic);
+
 app.use('/api/url', urlRoutes);
 
 const adminRoutes = require('./routes/AdminRoutes');

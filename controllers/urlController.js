@@ -1,6 +1,25 @@
 const Url = require('../models/urlModels');
 const { nanoid } = require('nanoid');
 
+exports.shortenUrlPublic = async (req, res) => {
+  const { originalUrl } = req.body;
+  if (!originalUrl) return res.status(400).json({ error: 'URL is required' });
+
+  try {
+    const shortCode = nanoid(6);
+    const url = new Url({
+      originalUrl,
+      shortCode,
+      // No owner for public links
+    });
+    await url.save();
+    res.json({ success: true, shortUrl: `${process.env.BASE_URL}/${shortCode}`, shortCode });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 exports.shortenUrl = async (req, res) => {
   const { originalUrl } = req.body;
   if (!originalUrl) return res.status(400).json({ error: 'URL is required' });

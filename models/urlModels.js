@@ -21,7 +21,6 @@ const urlSchema = new mongoose.Schema({
   owner: {                       // ⬅⬅ THÊM MỚI
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
   }
 });
 
