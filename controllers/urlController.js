@@ -103,7 +103,7 @@ exports.updateUrl = async (req, res) => {
     }
 
     // Authorization: only owner or admin can update
-    if (req.user.role !== 'admin' && url.owner.toString() !== req.user.id) {
+    if (req.user.role !== 'admin' && (!url.owner || url.owner.toString() !== req.user.id)) {
       return res.status(403).json({ error: 'Forbidden: You are not allowed to edit this URL' });
     }
 
