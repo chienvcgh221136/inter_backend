@@ -8,6 +8,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:8080', // For local development
   'http://localhost:5000',
+  'https://chienpv109.vercel.app',
   'https://interfrontend.vercel.app',
   'https://interfrontend-git-main-chienvcgh221136s-projects.vercel.app',
   'https://interfrontend-jaidvu3cg-chienvcgh221136s-projects.vercel.app'
