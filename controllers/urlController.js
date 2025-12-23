@@ -86,7 +86,16 @@ exports.redirectUrl = async (req, res) => {
 
     url.clicks++;
     await url.save();
-    res.redirect(url.originalUrl);
+
+    // Chuyển tiếp các tham số query (như UTM) nếu có
+    let redirectUrl = url.originalUrl;
+    if (req.query && Object.keys(req.query).length > 0) {
+      const separator = redirectUrl.includes('?') ? '&' : '?';
+      const queryString = new URLSearchParams(req.query).toString();
+      redirectUrl += `${separator}${queryString}`;
+    }
+
+    res.redirect(redirectUrl);
   } catch (error) {
     console.error('Server error:', error);
     res.status(500).json({ error: 'Server error' });

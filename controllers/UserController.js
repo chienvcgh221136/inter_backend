@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ error: 'Wrong password' });
 
-    const payload = { id: user._id, username: user.username, role: 'user' };
+    const payload = { id: user._id, username: user.username, displayName: user.displayName, role: 'user' };
 
     const accessToken = jwt.sign(
       payload,
@@ -45,7 +45,7 @@ exports.login = async (req, res) => {
       { expiresIn: '1d' } // Access token có thời hạn 1 ngày
     );
     const refreshToken = jwt.sign(
-      { id: user._id, username: user.username, role: 'user' },
+      { id: user._id, username: user.username, displayName: user.displayName, role: 'user' },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: '7d' } // Refresh token có thời hạn 7 ngày
     );
@@ -84,14 +84,14 @@ exports.googleLogin = async (req, res) => {
     }
 
     // Create JWT for our application
-    const payload = { id: user._id, username: user.username, role: 'user' };
+    const payload = { id: user._id, username: user.username, displayName: user.displayName, role: 'user' };
     const accessToken = jwt.sign(
       payload,
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
     const refreshToken = jwt.sign(
-      { id: user._id, username: user.username, role: 'user' },
+      { id: user._id, username: user.username, displayName: user.displayName, role: 'user' },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: '7d' }
     );
@@ -109,7 +109,7 @@ exports.refreshToken = async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const payload = { id: decoded.id, username: decoded.username, role: decoded.role };
+    const payload = { id: decoded.id, username: decoded.username, displayName: decoded.displayName, role: decoded.role };
 
     const accessToken = jwt.sign(
       payload,
@@ -133,7 +133,7 @@ exports.getProfile = async (req, res) => {
 
 // ADMIN ONLY — GET ALL USERS
 exports.getAllUsers = async (req, res) => {
-   try {
+  try {
     const users = await User.find().select('-password').populate('urls');
     res.json(users);
   } catch (err) {
@@ -151,10 +151,10 @@ exports.getUserById = async (req, res) => {
 
 // ADMIN OR SELF — UPDATE USER
 exports.updateUser = async (req, res) => {
-  const { username, password } = req.body;
+  const { displayName, password } = req.body; // Removed username from destructuring to prevent update
   let update = {};
 
-  if (username) update.username = username;
+  if (displayName !== undefined) update.displayName = displayName;
   if (password) update.password = await bcrypt.hash(password, 10);
 
   const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-password');

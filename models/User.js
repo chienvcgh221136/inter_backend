@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  displayName: {
+    type: String,
+    default: ''
+  },
   password: {
     type: String,
     required: function() { return !this.googleId; } // Only required if not a Google user
